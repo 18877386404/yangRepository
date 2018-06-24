@@ -1,0 +1,67 @@
+
+注意：web.xml中的一些配置
+   a. listener
+   
+  <!-- 全局上下文参数 -->
+  <context-param>
+  	<param-name>contextConfigLocation</param-name>
+  	<param-value>classpath:applicationContext.xml</param-value>
+  </context-param>
+ 
+  <!-- 加载applicationContext.xml配置文件 -->
+  <listener>
+ 	<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+  </listener>
+
+1.	用户发送请求给服务器。url：user/login
+
+2.	服务器收到请求。发现DispatchServlet可以处理。于是调用DispatchServlet，
+	它会委托应用系统的其他模块负责对请求进行真正的处理工作。
+	<!-- 将springMVC整合到项目里, 核心控制器 -->
+ 	<servlet>
+ 		<servlet-name>springmvc</servlet-name>
+ 		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+ 		<init-param>
+ 			<param-name>contextConfigLocation</param-name>
+ 			<param-value>classpath:springmvc-servlet.xml</param-value>
+ 		</init-param>
+ 	</servlet>
+ 	<servlet-mapping>
+ 		<servlet-name>springmvc</servlet-name>
+ 		<!-- 包含所有的请：*.js,*.css,*.html,*.jpg... -->
+ 		<url-pattern>/</url-pattern>
+ 	</servlet-mapping>
+	
+
+3.	DispatchServlet会查询一个或多个HandleMapping并检查这个url找到处理该请求的Controller。如果有，则调用Controller。
+
+4.	Controller开始执行 方法。
+ 	映射处理的方法有两和种方式：
+ 	方式1：（推荐使用这种方式）
+	 	@RequestMapping(value="/login")
+	 	public String doLogin(..注入参数..){
+	 	
+	 	}
+ 	
+ 	方式2：
+ 		@RequestMapping(params={"method=login"},method=RequestMethod.POST)
+	 	public String doLogin(..注入参数..){
+	 	
+	 	}
+
+5.	Controller执行完毕后，如果返回字符串，则ViewResolver将字符串转化成相应的视图对象；如果返回ModelAndView对象，该对象本身就包含了视图对象信息。
+		 * 默认是请求转发：返回的路径如果带有“forward:”则要将jsp路径写全。
+		 * return "list";	// 转发到 “/views/list.jsp” 页面
+		 * return "forward:/views/success.jsp"; //这样也行
+		 * return "forward:/otherController/xxMethod"; //交给其它的控制器继续处理
+		 * return "forward:/otherController?method=doLogin";
+		 * 
+		 * 重定向：
+		 * return "redirect:/views/success.jsp";
+		 * return "redirect:/otherController.do?method=doLogin";
+
+6.	DispatchServlet将执视图对象中的数据，输出给服务器。
+
+7.	服务器将数据输出给客户端。
+
+
